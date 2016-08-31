@@ -1,0 +1,95 @@
+#!/bin/bash
+
+proxy() {
+
+    if [ -z $(docker ps -q -f name=$proxy) ]
+      then
+
+        echo "$proxy not running, skipping network connect."
+        return
+
+    fi
+
+    echo "setting up $proxy network connection"
+
+    local network=$(docker inspect --format '{{index .Config.Labels "com.docker.compose.project" }}' $(docker-compose ps -q nginx))_default
+    local enabled=$([ -z "$(docker network inspect --format "{{ .Containers }}" $network | grep $proxy)" ] && echo 0 || echo 1)
+
+    if [ $enabled -eq 0 ]
+      then
+
+        echo " - connecting $proxy to $network"
+
+        docker network connect $network $proxy
+
+        # ISSUE/TODO
+        #
+        # The initial config created by nginx-proxy is invalid, the network connect will not trigger the config to be
+        # generated so we stop/start as well.
+
+        docker-compose stop nginx
+        docker-compose start nginx
+
+        echo " - done."
+
+    else
+
+        echo " - network $network already connected to $proxy"
+
+    fi
+}
+
+update()
+{
+    git -C "${HOME}/.bench" pull
+}
+
+bootstrap() {
+
+    local stack="${HOME}/.bench/stack/${1}"
+    local repository="git://github.com/SwinxyApps/bench-stack-${1}.git"
+
+    # Keep our local copy of the stack up to date
+
+    if [ -d "$stack" ]; then
+        git -C "$stack" pull
+    else
+        git clone --depth=1 --branch=master $repository $stack
+    fi
+
+    # Create the project using the stack as a template
+
+    cp -ap $stack $2
+
+    # Tidy up
+
+    rm -rf "${2}/.git"
+    printf "#!/bin/bash\n\n# Source Stack Commands\n. ${stack}/bench.sh\n\n# Project Commands Here" > "${2}/bench.sh"
+
+    # Pass on to the stack specific bootstrap
+
+    cd $2
+    bench bootstrap
+}
+
+upsearch () {
+  found=0
+  slashes=${PWD//[^\/]/}
+  directory="$PWD"
+  for (( n=${#slashes}; n>0; --n ))
+  do
+    test -e "$directory/$1" && found=1 && return 
+    directory="$directory/.."
+  done
+}
+
+upsearch "bench.sh"
+
+if [ $found -eq 1 ]; then
+    . "${directory}/bench.sh"
+fi
+
+command=$1
+shift 1
+
+eval $command $@
