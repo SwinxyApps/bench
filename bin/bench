@@ -1,5 +1,7 @@
 #!/bin/bash
 
+proxy="nginx-proxy"
+
 proxy() {
 
     if [ -z $(docker ps -q -f name=$proxy) ]
