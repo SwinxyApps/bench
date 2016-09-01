@@ -1,14 +1,21 @@
 #!/bin/bash
 
-proxy="nginx-proxy"
+proxy="bench-proxy"
+
+enable() {
+    docker-compose -f $HOME/.bench/docker-compose.yml up -d
+}
+
+disable() {
+    docker-compose -f $HOME/.bench/docker-compose.yml stop
+}
 
 proxy() {
 
     if [ -z $(docker ps -q -f name=$proxy) ]
       then
 
-        echo "$proxy not running, skipping network connect."
-        return
+        enable
 
     fi
 
