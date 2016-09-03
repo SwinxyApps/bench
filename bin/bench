@@ -70,10 +70,14 @@ bootstrap() {
 
     cp -ap $stack $2
 
-    # Tidy up
+    # Replace bench.sh
 
     rm -rf "${2}/.git"
     printf "#!/bin/bash\n\n# Source Stack Commands\n. ${stack}/bench.sh\n\n# Project Commands Here" > "${2}/bench.sh"
+
+    # Rewrite Variables
+
+    sed --in-place "s/\${project.name}/${2}/g" "${2}/docker-compose.yml"
 
     # Pass on to the stack specific bootstrap
 
