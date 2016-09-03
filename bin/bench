@@ -73,7 +73,7 @@ bootstrap() {
     # Replace bench.sh
 
     rm -rf "${2}/.git"
-    printf "#!/bin/bash\n\n# Source Stack Commands\n. ${stack}/bench.sh\n\n# Project Commands Here" > "${2}/bench.sh"
+    printf "#!/bin/bash\n\n# Source Stack Commands\n. ~/.bench/stack/${1}/bench.sh\n\n# Project Commands Here" > "${2}/bench.sh"
 
     # Rewrite Variables
 
