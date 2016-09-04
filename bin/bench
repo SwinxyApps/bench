@@ -2,6 +2,17 @@
 
 proxy="bench-proxy"
 
+import() {
+
+    local stack="${HOME}/.bench/stack/${1}"
+
+    if [ ! -d "${stack}" ]; then
+        git clone --depth=1 --branch=master git://github.com/SwinxyApps/bench-stack-${1}.git $stack
+    fi
+
+    . "${stack}/bench.sh"
+}
+
 start() {
     docker-compose up -d
     proxy
