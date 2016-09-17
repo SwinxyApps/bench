@@ -107,7 +107,7 @@ task_bootstrap() {
 
     # Rewrite Variables
 
-    sed --in-place "s/\${project.name}/${2}/g" "${2}/docker-compose.yml"
+    sedi "s/\${project.name}/${2}/g" "${2}/docker-compose.yml"
 
     # Pass on to the stack specific bootstrap
 

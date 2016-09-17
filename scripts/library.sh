@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+
+# sedi <expression> <file>
+#
+# Cross-platform sed in-place runner due to differences between
+# the linux and bs implementations.
+#
+sedi() {
+    sed --version >/dev/null 2>&1 && sed -i -- "$@" || sed -i "" "$@"
+}
+
 # up_search <file>
 #
 # Iterates up from the CWD to find the given file.
